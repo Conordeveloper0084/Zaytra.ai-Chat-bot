@@ -23,7 +23,7 @@ async def cmd_start(message: Message, state: FSMContext):
 
     user_id = message.from_user.id
 
-    # Kanalga obuna tekshiramiz
+    # 1️⃣ Avval obuna tekshiriladi
     subscribed = await is_user_subscribed(bot, user_id, CHANNEL_USERNAME)
     
     if not subscribed:
@@ -35,15 +35,15 @@ async def cmd_start(message: Message, state: FSMContext):
         )
         return
 
-    # Agar allaqachon ro‘yxatdan o‘tgan bo‘lsa
+    # 2️⃣ User ro'yxatdan o'tganmi?
     if user_exists(user_id):
         await message.answer(
             "Siz allaqachon ro‘yxatdan o‘tgansiz ✅\n"
-            "Endi biznes yoki SMM bo‘yicha savolingizni yozishingiz mumkin 😊"
+            "Endi SMM yoki biznes bo‘yicha savolingizni yuboring 😊"
         )
         return
 
-    # Ro‘yxatdan o‘tish boshlanadi
+    # 3️⃣ Yangi user → Registratsiya boshlanadi
     await state.set_state(Registration.waiting_for_full_name)
     await message.answer("Iltimos, to‘liq ismingizni yuboring ✍️")
 
@@ -55,12 +55,18 @@ async def callback_check_sub(callback: CallbackQuery, state: FSMContext):
     subscribed = await is_user_subscribed(bot, user_id, CHANNEL_USERNAME)
 
     if not subscribed:
-        await callback.answer("Hali obuna bo‘lmagansiz ❌", show_alert=True)
+        await callback.answer("❌ Hali obuna bo‘lmagansiz!", show_alert=True)
+        return
+
+    if user_exists(user_id):
+        await callback.message.answer("Obuna tasdiqlandi 🎉")
+        await callback.message.answer("Savolingizni yozishingiz mumkin 😊")
+        await callback.answer()
         return
 
     await callback.message.answer(
-        "Obuna tasdiqlandi! 🎉\n"
-        "Endi to‘liq ismingizni yuboring."
+        "Obuna tasdiqlandi 🎉\n"
+        "Iltimos, to‘liq ismingizni yuboring ✍️"
     )
     await state.set_state(Registration.waiting_for_full_name)
     await callback.answer()
