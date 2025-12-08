@@ -1,19 +1,22 @@
 import os
 from aiogram import Bot, Dispatcher
-from aiogram.enums import ParseMode
 from dotenv import load_dotenv
 
-# .env fayldan ma'lumotlarni yuklaymiz
+# Lokal .env mavjud bo‘lsa yuklaydi (Railwayda esa ignore)
 load_dotenv()
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-CHANNEL_USERNAME = os.getenv("CHANNEL_USERNAME", "@Conordevs_Blogs")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+CHANNEL_USERNAME = os.getenv("CHANNEL_USERNAME")
 
 if not BOT_TOKEN:
-    raise ValueError("❌ BOT_TOKEN .env faylda topilmadi!")
+    raise ValueError("❌ BOT_TOKEN env variables orqali topilmadi!")
 
-# Bot obyektini yaratish
-bot = Bot(token=BOT_TOKEN, parse_mode=ParseMode.HTML)
+if not OPENAI_API_KEY:
+    raise ValueError("❌ OPENAI_API_KEY env variables orqali topilmadi!")
 
-# Dispatcher — handlerlarni va eventlarni boshqaradi
+if not CHANNEL_USERNAME:
+    raise ValueError("❌ CHANNEL_USERNAME env variables orqali topilmadi!")
+
+bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
