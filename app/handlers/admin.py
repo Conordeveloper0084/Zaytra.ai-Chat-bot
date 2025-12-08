@@ -132,8 +132,7 @@ async def broadcast_init(callback: CallbackQuery, state: FSMContext):
 
     await state.set_state(BroadcastState.waiting_for_broadcast_text)
     await callback.message.answer(
-        "🔊 Broadcast tekstini yuboring.\n"
-        "(HTML format: <b>Qalin</b>, linklar va h.k.)"
+        "🔊 Broadcast tekstini yuboring!"
     )
     await callback.answer()
 

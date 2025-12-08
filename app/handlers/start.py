@@ -29,8 +29,8 @@ async def cmd_start(message: Message, state: FSMContext):
     if not subscribed:
         await message.answer(
             "👋 Assalomu alaykum!\n\n"
-            "Zaytra AI chatbotidan foydalanish uchun avval "
-            f"<b>{CHANNEL_USERNAME}</b> kanaliga obuna bo‘ling.",
+            "Zaytra AI chatbotidan foydalanish uchun avval iltimos"
+            f"{CHANNEL_USERNAME} kanaliga obuna bo‘ling.",
             reply_markup=subscription_keyboard()
         )
         return
