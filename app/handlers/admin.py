@@ -27,29 +27,23 @@ USERS_PER_PAGE = 20
 # =================== ADMIN PANEL =================== #
 
 @admin_router.message(Command("admin"))
-async def cmd_admin(message: Message):
+async def cmd_admin(message: Message, state: FSMContext):
     user_id = message.from_user.id
 
     admins = get_admins()
 
-    # Agar hali admin yo'q bo'lsa – birinchi /admin yozgan userni admin qilamiz
     if not admins:
         add_admin(user_id, message.from_user.username or "")
-        await message.answer(
-            "Siz birinchi admin sifatida qo'shildingiz ✅\n"
-            "Endi admin paneldan foydalanishingiz mumkin.",
-            reply_markup=admin_main_keyboard()
+        return await message.answer(
+            "Siz birinchi admin sifatida qo‘shildingiz! 👑",
+            reply_markup=admin_main_kb()
         )
-        return
 
     if not is_admin(user_id):
-        await message.answer("⛔ Siz admin emassiz!")
-        return
+        return await message.answer("⛔ Siz admin emassiz!")
 
-    await message.answer(
-        "👑 Admin panelga xush kelibsiz!",
-        reply_markup=admin_main_keyboard()
-    )
+    await state.clear()
+    await message.answer("👑 Admin panelga xush kelibsiz!", reply_markup=admin_main_kb())
 
 # ============== BACK TO MAIN MENU ============== #
 
@@ -79,15 +73,22 @@ async def users_main(callback: CallbackQuery):
     await callback.answer()
 
 
-@admin_router.callback_query(F.data == "admin_users_count")
-async def users_count(callback: CallbackQuery):
-    if not is_admin(callback.from_user.id):
-        return await callback.answer("⛔ Ruxsat yo‘q!", show_alert=True)
+@admin_router.message(F.text == "👥 Userlar soni")
+async def users_count(message: Message):
+    if not is_admin(message.from_user.id):
+        return await message.answer("⛔ Ruxsat yo‘q!")
 
     count = get_total_users()
-    await callback.message.answer(f"👥 Jami userlar: {count}")
-    await callback.answer()
+    await message.answer(f"👥 Jami userlar: {count}")
 
+
+@admin_router.message(F.text == "📋 Ro‘yxat")
+async def users_list(message: Message):
+    if not is_admin(message.from_user.id):
+        return await message.answer("⛔ Ruxsat yo‘q!")
+
+    # Default → first page
+    await show_users_page(message, 0)
 
 @admin_router.callback_query(F.data.startswith("admin_users_page:"))
 async def users_page(callback: CallbackQuery):
@@ -125,19 +126,23 @@ async def users_page(callback: CallbackQuery):
     )
     await callback.answer()
 
+@admin_router.message(F.text == "👤 Userlar")
+async def user_section(message: Message):
+    if not is_admin(message.from_user.id):
+        return await message.answer("⛔ Ruxsat yo‘q!")
+    
+    await message.answer("📊 Userlar bo‘limi:", reply_markup=admin_users_kb())
+
 
 # ============== BROADCAST ============== #
 
-@admin_router.callback_query(F.data == "admin_broadcast")
-async def broadcast_init(callback: CallbackQuery, state: FSMContext):
-    if not is_admin(callback.from_user.id):
-        return await callback.answer("⛔ Ruxsat yo‘q!", show_alert=True)
+@admin_router.message(F.text == "📢 Broadcast")
+async def start_broadcast(message: Message, state: FSMContext):
+    if not is_admin(message.from_user.id):
+        return await message.answer("⛔ Ruxsat yo‘q!")
 
     await state.set_state(BroadcastState.waiting_for_broadcast_text)
-    await callback.message.answer(
-        "🔊 Broadcast tekstini yuboring!"
-    )
-    await callback.answer()
+    await message.answer("🔊 Broadcast matnini kiriting:")
 
 
 @admin_router.message(BroadcastState.waiting_for_broadcast_text)
@@ -172,16 +177,12 @@ async def broadcast_send(message: Message, state: FSMContext):
 
 # ============== ADMIN MANAGEMENT ============== #
 
-@admin_router.callback_query(F.data == "admin_manage")
-async def manage_admin(callback: CallbackQuery):
-    if not is_admin(callback.from_user.id):
-        return await callback.answer("⛔ Ruxsat yo‘q!", show_alert=True)
+@admin_router.message(F.text == "🔧 Admin boshqaruvi")
+async def manage_admin_menu(message: Message):
+    if not is_admin(message.from_user.id):
+        return await message.answer("⛔ Ruxsat yo‘q!")
 
-    await callback.message.edit_text(
-        "🔧 Admin boshqaruvi:",
-        reply_markup=admin_manage_keyboard()
-    )
-    await callback.answer()
+    await message.answer("🔧 Admin boshqaruvi: ", reply_markup=admin_manage_kb())
 
 
 @admin_router.callback_query(F.data == "admin_list")
@@ -281,3 +282,16 @@ async def admin_remove_do(message: Message, state: FSMContext):
         await message.answer("🗑 Admin o‘chirildi!")
     else:
         await message.answer("❌ Admin topilmadi!")
+
+@admin_router.message(F.text == "⬅️ Orqaga")
+async def go_back(message: Message):
+    if not is_admin(message.from_user.id):
+        return await message.answer("⛔ Ruxsat yo‘q!")
+
+    await message.answer("👑 Admin panel", reply_markup=admin_main_kb())
+
+
+@admin_router.message(F.text == "❌ Chiqish")
+async def exit_admin(message: Message, state: FSMContext):
+    await state.clear()
+    await message.answer("Admin rejimdan chiqdingiz 👌", reply_markup=None)
