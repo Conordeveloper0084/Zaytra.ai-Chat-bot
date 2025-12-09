@@ -36,14 +36,14 @@ async def cmd_admin(message: Message, state: FSMContext):
         add_admin(user_id, message.from_user.username or "")
         return await message.answer(
             "Siz birinchi admin sifatida qo‘shildingiz! 👑",
-            reply_markup=admin_main_kb()
+            reply_markup=admin_main_keyboard()
         )
 
     if not is_admin(user_id):
         return await message.answer("⛔ Siz admin emassiz!")
 
     await state.clear()
-    await message.answer("👑 Admin panelga xush kelibsiz!", reply_markup=admin_main_kb())
+    await message.answer("👑 Admin panelga xush kelibsiz!", reply_markup=admin_main_keyboard())
 
 # ============== BACK TO MAIN MENU ============== #
 
@@ -131,7 +131,7 @@ async def user_section(message: Message):
     if not is_admin(message.from_user.id):
         return await message.answer("⛔ Ruxsat yo‘q!")
     
-    await message.answer("📊 Userlar bo‘limi:", reply_markup=admin_users_kb())
+    await message.answer("📊 Userlar bo‘limi:", reply_markup=admin_users_keyboard())
 
 
 # ============== BROADCAST ============== #
@@ -182,7 +182,7 @@ async def manage_admin_menu(message: Message):
     if not is_admin(message.from_user.id):
         return await message.answer("⛔ Ruxsat yo‘q!")
 
-    await message.answer("🔧 Admin boshqaruvi: ", reply_markup=admin_manage_kb())
+    await message.answer("🔧 Admin boshqaruvi: ", reply_markup=admin_manage_keyboard())
 
 
 @admin_router.callback_query(F.data == "admin_list")
@@ -288,7 +288,7 @@ async def go_back(message: Message):
     if not is_admin(message.from_user.id):
         return await message.answer("⛔ Ruxsat yo‘q!")
 
-    await message.answer("👑 Admin panel", reply_markup=admin_main_kb())
+    await message.answer("👑 Admin panel", reply_markup=admin_main_keyboard())
 
 
 @admin_router.message(F.text == "❌ Chiqish")
