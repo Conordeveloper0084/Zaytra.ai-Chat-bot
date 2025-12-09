@@ -196,7 +196,7 @@ async def list_admins(callback: CallbackQuery):
 
     text = "📋 Adminlar:\n\n"
     for i, a in enumerate(admins, start=1):
-        text += f"{i}. ID: <code>{a['telegram_id']}</code> | @{a.get('username', '-')}\n"
+        text += f"{i}. ID: {a['telegram_id']} | @{a.get('username', '-')}\n"
 
     await callback.message.answer(text)
     await callback.answer()
@@ -248,7 +248,7 @@ async def admin_add_username(message: Message, state: FSMContext):
     await state.clear()
     await message.answer(
         f"✔ Admin qo‘shildi!\n"
-        f"ID: <code>{admin_id}</code>\n"
+        f"ID: {admin_id} \n"
         f"Username: @{username or '-'}"
     )
 
