@@ -85,7 +85,7 @@ async def users_count(callback: CallbackQuery):
         return await callback.answer("⛔ Ruxsat yo‘q!", show_alert=True)
 
     count = get_total_users()
-    await callback.message.answer(f"👥 Jami userlar: <b>{count}</b>")
+    await callback.message.answer(f"👥 Jami userlar: {count}")
     await callback.answer()
 
 
@@ -105,14 +105,17 @@ async def users_page(callback: CallbackQuery):
     if not users:
         return await callback.message.edit_text("Hali user yo‘q.")
 
-    text = f"📋 Userlar ({page+1}/{total_pages}):\n\n"
+    text = f"📋 Userlar ({page + 1}/{total_pages}):\n\n"
 
     for index, user in enumerate(users, start=1):
+        username = user.get("username") or ""
+        username_display = f"@{username}" if username else "not provided"
+
         text += (
-            f"{page*USERS_PER_PAGE + index}. <b>{user['full_name']}</b>\n"
-            f"ID: <code>{user['telegram_id']}</code>\n"
-            f"Tel: <code>{user['phone']}</code>\n"
-            f"Link: <a href='tg://user?id={user['telegram_id']}'>Profil</a>\n\n"
+            f"{page * USERS_PER_PAGE + index}. {user.get('full_name', 'No name')}\n"
+            f"ID: {user.get('telegram_id')}\n"
+            f"Tel: {user.get('phone')}\n"
+            f"Username: {username_display}\n\n"
         )
 
     await callback.message.edit_text(

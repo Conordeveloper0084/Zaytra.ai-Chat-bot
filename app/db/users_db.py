@@ -36,14 +36,20 @@ def user_exists(telegram_id: int) -> bool:
     return any(u.get("telegram_id") == telegram_id for u in users)
 
 
-def register_or_update_user(telegram_id: int, full_name: str, phone: str):
-    """Yangi user qo‘shish yoki mavjudini yangilash"""
+def register_or_update_user(telegram_id: int, full_name: str, phone: str, username: str | None = None):
+    """
+    Yangi user qo‘shish yoki mavjudini yangilash.
+    - full_name: ro‘yxatdan o‘tayotganda foydalanuvchi kiritgan ism
+    - phone: kontakt telefon raqami
+    - username: telegram @username (bo‘lmasa None yoki "")
+    """
     users = load_users()
 
     for user in users:
         if user.get("telegram_id") == telegram_id:
             user["full_name"] = full_name
             user["phone"] = phone
+            user["username"] = username or ""
             save_users(users)
             return
 
@@ -51,7 +57,8 @@ def register_or_update_user(telegram_id: int, full_name: str, phone: str):
         {
             "telegram_id": telegram_id,
             "full_name": full_name,
-            "phone": phone
+            "phone": phone,
+            "username": username or "",
         }
     )
     save_users(users)

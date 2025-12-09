@@ -92,8 +92,9 @@ async def process_contact(message: Message, state: FSMContext):
     full_name = data.get("full_name")
     phone = message.contact.phone_number
     user_id = message.from_user.id
+    username = message.from_user.username or ""
 
-    register_or_update_user(user_id, full_name, phone)
+    register_or_update_user(user_id, full_name, phone, username)
 
     await state.clear()
     await message.answer(
@@ -101,8 +102,3 @@ async def process_contact(message: Message, state: FSMContext):
         "Endi savolingizni yozishingiz mumkin 🔥",
         reply_markup=ReplyKeyboardRemove()
     )
-
-
-@start_router.message(Registration.waiting_for_contact)
-async def process_contact_required(message: Message, state: FSMContext):
-    await message.answer("📌 Iltimos, tugma orqali kontaktingizni yuboring.")
